@@ -13,15 +13,69 @@ boston = load_boston()
 bos = pd.DataFrame(boston.data)
 
 
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import sklearn
+from sklearn import datasets, cross_validation
+from sklearn.linear_model import LinearRegression
+from sklearn.datasets import load_boston
+
+
+    # Converting the Dataset to panda DataFrame
+boston = load_boston()
+bos = pd.DataFrame(boston.data)
+
+   #Assigning feature names to column
+bos.columns = boston.feature_names
+
+  #Assigning target to bos array as new column price
+bos['PRICE'] = boston.target
+bos.head()
+
+X = bos.drop('PRICE', axis = 1)
+
+        # Create Linear Regression model
+lm = LinearRegression(copy_X=True, fit_intercept=True, normalize=False)
+
+        # Fiting the training data
+lm.fit(X, bos.PRICE)
 
 
 
+print ('Total coefficients: {0}'.format(len(lm.coef_)))
+print ('Estimated intercept coefficient: {0}'.format(lm.intercept_))
 
 
+        # Print Dataframe containing features and estimated coefficients
+pd.DataFrame(list(zip(X.columns, lm.coef_)),columns=['features', 'estimated coefficients'])
 
 
+# Scatter plot of average  number of rooms per dwelling to housing price
+plt.scatter(bos.RM, boston.target)
+plt.xlabel('Average number of rooms per dwelling (RM)')
+plt.ylabel('Housing price')
+plt.title('Relationship between RM and price')
+plt.show()
 
+ # Predicting house prices using features used for training
+plt.scatter(bos.PRICE, lm.predict(X))
+plt.xlabel('Prices:')
+plt.ylabel('Predicted prices:')
+plt.title('Prices vs Predicted Prices:')
 
+ # Calculating mean squared error
+mse = np.mean((bos.PRICE - lm.predict(X)) ** 2)
+print ('Mean squared error of predictions with all features: {}'.format(mse))
+
+    # Split ing the data into training and test datasets using cross validation
+x_train, x_test, y_train, y_test = cross_validation.train_test_split(X, bos.PRICE, test_size=0.33, random_state=5)
+lm = LinearRegression()
+lm.fit(x_train, y_train)
+pred_test = lm.predict(x_test)
+mse = np.mean((y_test - pred_test) ** 2)
+print ('Mean squared error of predictions with test split: {}'.format(mse))
 
 
 
